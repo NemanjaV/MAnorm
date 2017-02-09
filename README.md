@@ -12,11 +12,11 @@ Changes in this version
 ---------------------
 1. In Manorm.sh, the line M←log2((common_peak_count_read1+1)/(common_peak_count_read2+1)) produces an error due to a change in bedtools overage behaviour. To fix this, I swapped the input order:
 
-coverageBed -a read1.bed -b unique_peak1.bed → coverageBed -b read1.bed -a unique_peak1.bed
+`coverageBed -a read1.bed -b unique_peak1.bed → coverageBed -b read1.bed -a unique_peak1.bed`
 
 2. Manorm.r requires the packages MASS, affy and R.basic, but the latter is deprecated and no longer available. Most of its functions have been transferred to R.utils and aroma.light, which can be installed as:
 
-biocLite("aroma.light") ; install.packages(c("R.oo","R.utils","MASS")).
+`biocLite("aroma.light") ; install.packages(c("R.oo","R.utils","MASS"))`
 
 3. The binomial coefficient function, nChooseK, was part of 'R.basic'. It was been replaced with the built-in function 'choose'.
 
@@ -51,6 +51,7 @@ run command:   `./MAnorm.sh   sample1_peakfile[BED]     sample2_peakfile[BED]   
 
 MANorm requires two files: the peaks in BED format, easily retrieved from MACS, and the reads from the original SAM file in the format chromosome, start, end, strand (+/-). To obtain the latter, we can use the following:
 
-`samtools view BAM_FILE | awk -F'\t' '{if ($2==0) {print $3,$4,($4+length($10)-1),"+"} else if ($2==16) {print $3,$4,($4+length($10)-1),"-"}}`
+```samtools view BAM_FILE | awk -F'\t' '{if ($2==0) {print $3,$4,($4+length($10)-1),"+"} else if ($2==16) {print $3,$4,($4+length($10)-1),"-"}}
+```
 
 
