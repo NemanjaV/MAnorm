@@ -38,17 +38,19 @@ a. Bedtools installed: http://bedtools.readthedocs.io/en/latest/content/installa
 b. Bioconductor packages installed: MASS, affy, R.utils
 
 HOWTO: input the following lines to install the 3 previous packages
-source("http:/bioconductor.org/biocLite.R")
+
+```source("http:/bioconductor.org/biocLite.R")
 biocLite("affy")
 install.packages(c("R.utils","MASS")
+```
 
 Usage
 ---------------------
 
-run command:   ./MAnorm.sh   sample1_peakfile[BED]     sample2_peakfile[BED]     sample1_readfile[BED]    sample2_readfile[BED]     sample1_readshift_lentgh[INT]       sample2_readshift_length
+run command:   `./MAnorm.sh   sample1_peakfile[BED]     sample2_peakfile[BED]     sample1_readfile[BED]    sample2_readfile[BED]     sample1_readshift_lentgh[INT]       sample2_readshift_length`
 
 MANorm requires two files: the peaks in BED format, easily retrieved from MACS, and the reads from the original SAM file in the format chromosome, start, end, strand (+/-). To obtain the latter, we can use the following:
 
-samtools view BAM_FILE | awk -F'\t' '{if ($2==0) {print $3,$4,($4+length($10)-1),"+"} else if ($2==16) {print $3,$4,($4+length($10)-1),"-"}}
+`samtools view BAM_FILE | awk -F'\t' '{if ($2==0) {print $3,$4,($4+length($10)-1),"+"} else if ($2==16) {print $3,$4,($4+length($10)-1),"-"}}`
 
 
