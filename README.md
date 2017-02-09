@@ -10,15 +10,15 @@ Published in [Genome Biology 2012](http://www.ncbi.nlm.nih.gov/pubmed/22424423)
 
 Changes in this version
 ---------------------
-1. In Manorm.sh, the line M←log2((common_peak_count_read1+1)/(common_peak_count_read2+1)) produces an error due to a change in bedtools overage behaviour. To fix this, I swapped the input order:
+* In Manorm.sh, the line M←log2((common_peak_count_read1+1)/(common_peak_count_read2+1)) produces an error due to a change in bedtools overage behaviour. To fix this, I swapped the input order:
 
 `coverageBed -a read1.bed -b unique_peak1.bed → coverageBed -b read1.bed -a unique_peak1.bed`
 
-2. Manorm.r requires the packages MASS, affy and R.basic, but the latter is deprecated and no longer available. Most of its functions have been transferred to R.utils and aroma.light, which can be installed as:
+* Manorm.r requires the packages MASS, affy and R.basic, but the latter is deprecated and no longer available. Most of its functions have been transferred to R.utils and aroma.light, which can be installed as:
 
 `biocLite("aroma.light") ; install.packages(c("R.oo","R.utils","MASS"))`
 
-3. The binomial coefficient function, nChooseK, was part of 'R.basic'. It was been replaced with the built-in function 'choose'.
+* The binomial coefficient function, nChooseK, was part of 'R.basic'. It was been replaced with the built-in function 'choose'.
 
 Problems with MAnorm (from [here](https://github.com/ying-w/chipseq-compare/tree/master/MAnorm))
 --------------------
@@ -33,9 +33,8 @@ Problems with MAnorm (from [here](https://github.com/ying-w/chipseq-compare/tree
 
 Pre-requisites
 ---------------------
-a. Bedtools installed: http://bedtools.readthedocs.io/en/latest/content/installation.html
-
-b. Bioconductor packages installed: MASS, affy, R.utils
+1. Bedtools installed: http://bedtools.readthedocs.io/en/latest/content/installation.html
+2. Bioconductor packages installed: MASS, affy, R.utils
 
 HOWTO: input the following lines to install the 3 previous packages
 
