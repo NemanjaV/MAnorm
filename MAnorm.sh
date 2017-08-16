@@ -2,15 +2,20 @@
 # NOTE: This script was originally downloaded from the official MAnorm website (http://bcb.dfci.harvard.edu/~gcyuan/MAnorm/MAnorm.htm#Downloads),  #
 # but it has been modified by Roger Mulet in order to allow its execution from another directory - normally the program would expect the input     #
 # files and the other scripts to be in the same directory																						   #
-# LAST UPDATE: 26/07/2017   																		  											   #
+# UPDATE: 26/07/2017																															   #
+# LAST UPDATE: Add option to filter narrowPeak files  									  											               # 
 #--------------------------------------------------------------------------------------------------------------------------------------------------#
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 if [ $# -lt 4 ]
 then
-  echo "Usage: `basename $0` peak1.bed peak2.bed (read1.bed read2.bed | read1.bam read2.bam) [bp_shift_1 bp_shift_2] [-o OUTPUT]"
-  exit
+	echo "Usage: `basename $0` peak1.bed peak2.bed (read1.bed read2.bed | read1.bam read2.bam) [bp_shift_1 bp_shift_2] [-o OUTPUT -f FILTER]"
+
+	echo "Optional arguments:"
+	echo "-o|--output		Name of the output file"
+	echo "-f|--filter		Significance threshold for MACS FDR [0.05]"
+	exit
 fi
 
 #--------------------------------------------------------------------------------------------------
@@ -40,10 +45,47 @@ check_file() {
 	fi
 }
 
-check_file $1 bed; PEAKS1=$1
-check_file $2 bed; PEAKS2=$2
+check_file $1 "bed|narrowPeak"; PEAKS1=$1
+check_file $2 "bed|narrowPeak"; PEAKS2=$2
 check_file $3 "bed|bam"; READS1=$3
 check_file $4 "bed|bam"; READS2=$4
+
+FILTER=1.30103
+
+while [[ $# -gt 0 ]]
+do
+        case "$1" in
+			-o|--output)
+			OUTPUT=$2
+			shift
+			;;
+			-f|--filter)
+			FILTER=$2
+			shift
+			;;
+			-h|--help)
+			display_usage
+			exit 0
+			;;
+        esac
+shift
+done 
+
+
+if [[ $PEAKS1 =~ ".narrowPeak" ]]; then
+
+	echo "Info: $PEAKS1 will be converted to BED using filter $FILTER"
+	awk -v FILTER=$FILTER '$7>FILTER{print $1,$2,$3,$4,$7}' $PEAKS1 > ${PEAKS1%%.narrowPeak}.bed
+
+fi
+
+if [[ $PEAKS2 =~ ".narrowPeak" ]]; then
+
+	echo "Info: $PEAKS2 will be converted to BED using filter $FILTER"
+	awk -v FILTER=$FILTER '$7>FILTER{print $1,$2,$3,$4,$7}' $PEAKS2 > ${PEAKS2%%.narrowPeak}.bed
+
+fi
+	
 
 #if [[ $3 == *.bam || $4 == *.bam ]]
 #then
@@ -91,38 +133,19 @@ else
 
 fi
 
-while [[ $# -gt 0 ]]
-do
-        case "$1" in
-			-o|--output)
-			OUTPUT=$2
-			shift
-			;;
-			-h|--help)
-			display_usage
-			exit 0
-			;;
-        esac
-shift
-done 
-
 if [[ -z $OUTPUT ]]; then
 
 	# Define output name. By default, a combination of the two file names (Roger)
-	OUTPUT=$(echo ${READS1##*/} | grep -oP '.*(?=_[12][0-9][012][0-9][0123][0-9])')_vs_$(echo ${READS1##*/} | grep -oP '.*(?=_[12][0-9][012][0-9][0123][0-9])')
+	OUTPUT=$(echo ${READS1##*/} | grep -oP '.*(?=_[12][0-9][012][0-9][0123][0-9])')_vs_$(echo ${READS2#*/} | grep -oP '.*(?=_[12][0-9][012][0-9][0123][0-9])')
 	
 	echo $OUTPUT  # CHANGE, only for our server
-
-	a=$(echo ${READS1##*/} | grep -oP '.*(?=_[12][0-9][012][0-9][0123][0-9])')
-	b=$(echo ${READS2##*/} | grep -oP '.*(?=_[12][0-9][012][0-9][0123][0-9])')
-
-	OUTPUT=${a}_vs_${b}
-
 	# echo  $OUTPUT $PEAKS1 $PEAKS2 $READS1 $READS2
 
 fi
 
+# echo  $OUTPUT $PEAKS1 $PEAKS2 $READS1 $READS2
 echo $OUTPUT
+
 #--------------------------------------------------------------------------------------------------
 #Script execution
 #--------------------------------------------------------------------------------------------------
