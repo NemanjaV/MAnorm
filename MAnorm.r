@@ -77,6 +77,8 @@ table_MA[,7] <- M_rescaled
 table_MA[,8] <- A_rescaled
 table_MA <-as.data.frame(table_MA)
 table_MA[,9] <- 0
+table_MA[,10] <- 2**log2_peak_count_read1_rescaled # RM -- normalized counts 1
+table_MA[,11] <- 2**log2_peak_count_read2 # RM -- not-normalized counts 2, used in the comparison
 log2_peak_count_read1_rescaled <- as.matrix(log2_peak_count_read1_rescaled)
 peak_count_read2 <- as.matrix(peak_count_read2)
 for (n in c(1:nrow(table_MA))) {
@@ -94,6 +96,8 @@ colnames(table_MA)[6] = "#raw_read_2"
 colnames(table_MA)[7] = "M_value_rescaled"
 colnames(table_MA)[8] = "A_value_rescaled"
 colnames(table_MA)[9] = "-log10(p-value)"
+colnames(table_MA)[10] = "#norm_read1"
+colnames(table_MA)[11] = "#norm_read2"
 
 write.table(table_MA,"MAnorm_result.xls",sep="\t",quote=FALSE,row.names=FALSE)
 

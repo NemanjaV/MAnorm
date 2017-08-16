@@ -74,8 +74,8 @@ check_file $4 "bed|bam"; READS2=$4
 if [ -z $5 -o -z $6 ]
 then
   echo "Warning: You have not specified a number of bp to be shifted. They will be automatically retrieved from XLS file"
-	
-  if [ -e $(basename $PEAKS1 .bed).xls -a -e $(basename $PEAKS2 .bed).xls ]
+
+  if [ -e ${PEAKS1%%.bed}.xls -a -e ${PEAKS2%%.bed}.xls ]
   then
     BP1=$(grep -oP '(?<=#\sd\s=\s)\d+' ${PEAKS1%%.bed}.xls)
     BP2=$(grep -oP '(?<=#\sd\s=\s)\d+' ${PEAKS2%%.bed}.xls)
@@ -91,9 +91,6 @@ else
 
 fi
 
-# Define output name. By default, a combination of the two file names (Roger)
-OUTPUT=$(echo $3 | grep -oP '.*(?=_[12][0-9][012][0-9][0123][0-9])')_vs_$(echo $4 | grep -oP '.*(?=_[12][0-9][012][0-9][0123][0-9])') # CHANGE, only for our server
- 
 while [[ $# -gt 0 ]]
 do
         case "$1" in
@@ -109,8 +106,23 @@ do
 shift
 done 
 
-# echo  $OUTPUT $PEAKS1 $PEAKS2 $READS1 $READS2
+if [[ -z $OUTPUT ]]; then
 
+	# Define output name. By default, a combination of the two file names (Roger)
+	OUTPUT=$(echo ${READS1##*/} | grep -oP '.*(?=_[12][0-9][012][0-9][0123][0-9])')_vs_$(echo ${READS1##*/} | grep -oP '.*(?=_[12][0-9][012][0-9][0123][0-9])')
+	
+	echo $OUTPUT  # CHANGE, only for our server
+
+	a=$(echo ${READS1##*/} | grep -oP '.*(?=_[12][0-9][012][0-9][0123][0-9])')
+	b=$(echo ${READS2##*/} | grep -oP '.*(?=_[12][0-9][012][0-9][0123][0-9])')
+
+	OUTPUT=${a}_vs_${b}
+
+	# echo  $OUTPUT $PEAKS1 $PEAKS2 $READS1 $READS2
+
+fi
+
+echo $OUTPUT
 #--------------------------------------------------------------------------------------------------
 #Script execution
 #--------------------------------------------------------------------------------------------------
@@ -129,11 +141,11 @@ sed 's/\s$//g' $PEAKS2 | awk 'BEGIN {OFS="\t"}
       else
           print $0 > "peak2_dump.bed"}'
 
-if [[ $READS1 == "*bam" ]]; then
-	echo "The provided file $READS1 a BAM file. It will be converted to BED"
+if [[ $READS1 == *bam ]]; then
+	echo "The provided file $READS1 is a BAM file. It will be converted to BED"
 	# Simply replace 4 (strand) with 6
-	bedtools bamtobed -i $3 | awk -v var=$BP1 'BEGIN {OFS="\t"}
-	     {if ($1~/chr/ && $1 !="chrM" && $6=="+" && $1 !~/random/ && $3>$2  && $2>0 && $3>0)
+	bedtools bamtobed -i $READS1 | awk -v var=$BP1 'BEGIN {OFS="\t"}
+	     {if ($1~/chr/ && $1 !="chrM" && $6=="+" && $1 !~/random/ && $3>$2 && $2>0 && $3>0)
 		  print $1,$2+var,$3+var>"read1.bed";
 	      else if ($1~/chr/  && $1 !="chrM" && $6=="-" && $1 !~/random/ && $3>$2  && $2>var && $3>var)
 		  print $1,$2-var,$3-var>"read1.bed";
@@ -142,7 +154,7 @@ if [[ $READS1 == "*bam" ]]; then
 else
 
 	sed 's/\s$//g' $READS1 | awk -v var=$BP1 'BEGIN {OFS="\t"}
-	     {if ($1~/chr/ && $1 !="chrM" && $4=="+" && $1 !~/random/ && $3>$2  && $2>0 && $3>0)
+	     {if ($1~/chr/ && $1 !="chrM" && $4=="+" && $1 !~/random/ && $3>$2 && $2>0 && $3>0)
 		  print $1,$2+var,$3+var>"read1.bed";
 	      else if ($1~/chr/  && $1 !="chrM" && $4=="-" && $1 !~/random/ && $3>$2  && $2>var && $3>var)
 		  print $1,$2-var,$3-var>"read1.bed";
@@ -150,11 +162,11 @@ else
 		  print $0 > "read1_dump.bed"}'
 fi
 
-if [[ $READS2 == "*bam" ]]; then
+if [[ $READS2 == *bam ]]; then
 	echo "The provided file $READS2 a BAM file. It will be converted to BED"
 	# Simply replace 4 (strand) with 6
 	bedtools bamtobed -i $READS2 | awk -v var=$BP2 'BEGIN {OFS="\t"}
-	     {if ($1~/chr/ && $1 !="chrM" && $6=="+" && $1 !~/random/ && $3>$2  && $2>0 && $3>0)
+	     {if ($1~/chr/ && $1 !="chrM" && $6=="+" && $1 !~/random/ && $3>$2 && $2>0 && $3>0)
 		  print $1,$2+var,$3+var>"read2.bed";
 	      else if ($1~/chr/  && $1 !="chrM" && $6=="-" && $1 !~/random/ && $3>$2  && $2>var && $3>var)
 		  print $1,$2-var,$3-var>"read2.bed";
@@ -163,9 +175,9 @@ if [[ $READS2 == "*bam" ]]; then
 else
 
 	sed 's/\s$//g' $READS2 | awk -v var=$BP2 'BEGIN {OFS="\t"}
-	     {if ($1~/chr/ && $1 !="chrM" && $4=="+" && $1 !~/random/ && $3>$2  && $2>0 && $3>0)
+	     {if ($1~/chr/ && $1 !="chrM" && $4=="+" && $1 !~/random/ && $3>$2 && $2>0 && $3>0)
 		  print $1,$2+var,$3+var>"read2.bed";
-	      else if ($1~/chr/  && $1 !="chrM" && $4=="-" && $1 !~/random/ && $3>$2  && $2>var && $3>var)
+	      else if ($1~/chr/  && $1 !="chrM" && $4=="-" && $1 !~/random/ && $3>$2 && $2>var && $3>var)
 		  print $1,$2-var,$3-var>"read2.bed";
 	      else 
 		  print $0 > "read2_dump.bed"}'
@@ -221,8 +233,6 @@ cat unique_peak1_count_read1 merge_common_read1  unique_peak2_count_read1 > merg
 cat unique_peak1_count_read2 merge_common_read2  unique_peak2_count_read2 > merge_common_peak_count_read2
 
 
-
-
 echo "StepIV: normalize using common peaks"
 #R --vanilla MAnorm.r >Rcommand.out
 R CMD BATCH $DIR/MAnorm.r Rcommand.out
@@ -247,8 +257,9 @@ rm MAnorm.bed
 rm MAnorm_merge.bed
 rm common_peak.bed
 
+echo "INFO: Renaming files as specified"
 rename "s/MAnorm_result/MAnorm_${OUTPUT}_result/" MAnorm*
 rename "s/MAplot_after/MAplot_${OUTPUT}_after/" MAplot*
 rename "s/MAplot_before/MAplot_${OUTPUT}_before/" MAplot*
 
-echo "MAnorm.sh execution finished. Files saved as $OUTPUT\n"
+echo -e "MAnorm.sh execution finished. Files saved as ${OUTPUT}\n"
