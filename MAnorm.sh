@@ -159,7 +159,7 @@ sed 's/\s$//g' $PEAKS1 | awk 'BEGIN {OFS="\t"}
           print $0 > "peak1_dump.bed"}'
 
 sed 's/\s$//g' $PEAKS2 | awk 'BEGIN {OFS="\t"}
-     {if ($$1~/chr/ && 1 !="chrM"  && $1 !~/random/ && $3>$2  && $2>0 && $3>0)
+     {if ($1~/chr/ && $1 !="chrM"  && $1 !~/random/ && $3>$2  && $2>0 && $3>0)
           print $1,$2,$3>"peak2.bed";
       else
           print $0 > "peak2_dump.bed"}'
